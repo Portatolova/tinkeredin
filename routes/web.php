@@ -26,4 +26,7 @@ Route::post('/profile', [App\Http\Controllers\ProfileController::class, 'postCre
 Route::get('/profile/edit', [App\Http\Controllers\ProfileController::class, 'edit']);
 Route::post('/profile/update', [App\Http\Controllers\ProfileController::class, 'postEdit']) -> name('profile.postEdit');
 
+Route::get('/post/delete/{postID}', [App\Http\Controllers\PostController::class, 'delete']) -> name('post.delete');
+Route::post('/post/editPost/{post}', [App\Http\Controllers\PostController::class, 'update']) -> name('post.update');
+
 Route::resource('post', App\Http\Controllers\PostController::class);

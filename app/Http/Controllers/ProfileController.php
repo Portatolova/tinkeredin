@@ -33,11 +33,13 @@ class ProfileController extends Controller
         $data = request()->validate([
             'description' => 'required',
             'profilepic' => ['required', 'image'],
+            'bgpic' => ['required', 'image']
         ]);
 
         // store the image in uploads, under public
         // request(‘profilepic’) is like $_GET[‘profilepic’]
         $imagePath = request('profilepic')->store('uploads', 'public');
+        $bgPath = request('bgpic')->store('uploads', 'public');
 
         // create a new profile, and save it
         $user = Auth::user();
@@ -45,6 +47,7 @@ class ProfileController extends Controller
         $profile->user_id = $user->id;
         $profile->description = request('description');
         $profile->image = $imagePath;
+        $profile->background = $bgPath;
         $saved = $profile->save();
 
         // if it saved, we send them to the profile page
@@ -58,6 +61,7 @@ class ProfileController extends Controller
         $data = request()->validate([
             'description' => 'required',
             'profilepic' => 'image',
+            'bgpic' => 'image'
         ]);
 
         // Load the existing profile
@@ -76,6 +80,12 @@ class ProfileController extends Controller
         if (request()->has('profilepic')) {
             $imagePath = request('profilepic')->store('uploads', 'public');
             $profile->image = $imagePath;
+        }
+
+         // Save the new bg pic... if there is one in the request()!
+         if (request()->has('bgpic')) {
+            $bgPath = request('bgpic')->store('uploads', 'public');
+            $profile->background = $bgPath;
         }
 
         // Now, save it all into the database
@@ -99,6 +109,7 @@ class ProfileController extends Controller
         $data = request()->validate([
             'description' => 'required',
             'profilepic' => 'image',
+            'bgpic' => 'image'
         ]);
     
         $user = Auth::user();

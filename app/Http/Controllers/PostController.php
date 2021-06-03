@@ -39,18 +39,20 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $data = request()->validate([
+            'title' => 'required',
             'caption' => 'required',
             'postpic' => ['required', 'image'],
         ]);
 
         $user = Auth::user();
-        $profile = new Post();
+        $post = new Post();
         $imagePath = request('postpic')->store('uploads', 'public');
 
-        $profile->user_id = $user->id;
-        $profile->caption = request('caption');
-        $profile->image = $imagePath;
-        $saved = $profile->save();
+        $post->user_id = $user->id;
+        $post->title = request('title');;
+        $post->caption = request('caption');
+        $post->image = $imagePath;
+        $saved = $post->save();
 
         if ($saved) {
             return redirect('/profile');
@@ -74,8 +76,21 @@ class PostController extends Controller
             'user' => $user
         ]);
     }
-    
-    
+
+
+
+    /**
+     * Deletes the specifed post with the corresponding postID
+     *
+     * @param  \App\Models\Post  $post
+     * @return \Illuminate\Http\Response
+     */
+    public function delete($postID) {
+        $post = Post::where('id', $postID)->first();
+        $post->delete();
+        return redirect('/profile');
+    }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -85,7 +100,9 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        return view("post.create", [
+            'post' => $post
+        ]);
     }
 
     /**
@@ -97,7 +114,36 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        $data = request()->validate([
+            'title' => 'required',
+            'caption' => 'required',
+            'postpic' => 'image'
+        ]);
+
+        // Load the existing profile
+        $user = Auth::user();
+        
+        //this is empty and returning null
+        $post = Post::where('id', $post->id)->first();
+        if(empty($post)){
+            $post = new Post();
+            $post->user_id = $user->id;
+        }
+
+        $post->title = request('title');
+        $post->caption = request('caption');
+
+        // Save the new image... if there is one in the request()!
+        if (request()->has('postpic')) {
+            $imagePath = request('postpic')->store('uploads', 'public');
+            $post->image = $imagePath;
+        }
+
+        // Now, save it all into the database
+        $updated = $post->save();
+        if ($updated) {
+            return redirect('/profile');
+        }
     }
 
     /**
